@@ -16,11 +16,20 @@
     placeholder="Search for a book"
   ></ion-searchbar>
 
+  <ion-segment (ionChange)="segmentChanged($event)" value="most">
+    <ion-segment-button value="most">
+      <ion-label>Most recommended</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="newest">
+      <ion-label>Newest</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
   <ion-list>
     <ion-item
+      lines="none"
       *ngFor="let book of books"
-      [routerLink]="['/books/', book.id]"
-      routerDirection="forward"
+      (click)="navigateToDetail(book)"
       detail="true"
     >
       <ion-img [src]="book?.thumbnailUrl" slot="start"></ion-img>
@@ -30,8 +39,8 @@
           <h3>{{ book.title }}</h3>
           <p>{{ book.authors }}</p>
         </ion-label>
-        <p *ngIf="book?.recommendations; else noRecommendations">
-          Recommended {{ book.recommendations }} time(s)
+        <p *ngIf="book?.recommendationCount; else noRecommendations">
+          Recommended {{ book.recommendationCount }} time(s)
         </p>
         <ng-template #noRecommendations><p>No recommendations</p></ng-template>
       </ion-label>

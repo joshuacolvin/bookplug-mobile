@@ -12,8 +12,8 @@
     #autofocus
     placeholder="Search for a book"
     color="light"
-    (change)="onSearch($event)"
-    (keyup.enter)="closeKeyboard()"
+    debounce="500"
+    (ionChange)="onSearch($event)"
     (ionClear)="clearSearch()"
   ></ion-searchbar>
 
@@ -30,7 +30,7 @@
 
       <ion-label>
         <h3>{{ book.volumeInfo.title }}</h3>
-        <p>{{ book.volumeInfo.authors[0] }}</p>
+        <p *ngIf="book.volumeInfo?.authors">{{ book.volumeInfo.authors[0] }}</p>
       </ion-label>
     </ion-item>
   </ion-list>

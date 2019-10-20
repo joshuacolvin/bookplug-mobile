@@ -4,18 +4,8 @@ export interface IBook {
   authors: string;
   uid: string;
   thumbnailUrl: string;
-  recommendations: number;
-  created?: firebase.firestore.Timestamp;
-}
-
-export interface IBookPost {
-  id?: string;
-  title: string;
-  authors: string;
-  uid: string;
-  thumbnailUrl: string;
-  created?: object;
-  recommendations?: firebase.firestore.FieldValue;
+  recommendationCount?: any;
+  created?: any;
 }
 
 export interface IBookPreview {
@@ -30,4 +20,7 @@ export interface IRecommendation {
   id: string;
   source: string;
   url: string;
+  uid: string;
+  reason: string;
+  created: any;
 }

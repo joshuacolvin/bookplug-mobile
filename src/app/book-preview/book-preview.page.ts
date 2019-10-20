@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 
 import { AuthService } from './../shared/auth.service';
 import { BooksService } from './../shared/books.service';
-import { IBook, IBookPreview, IBookPost } from './../shared/book.types';
+import { IBook, IBookPreview } from './../shared/book.types';
 
 @Component({
   selector: 'app-book-preview',
@@ -30,18 +30,21 @@ export class BookPreviewPage {
   private ngUnsubscribe: Subject<any> = new Subject();
 
   ionViewDidEnter(): void {
-    this.authService.getAuthState().subscribe((user: firebase.User) => {
-      if (user) {
-        this.uid = user.uid;
-        const volumeId: string = this.route.snapshot.queryParamMap.get(
-          'bookId',
-        );
+    this.authService
+      .getAuthState()
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((user: firebase.User) => {
+        if (user) {
+          this.uid = user.uid;
+          const volumeId: string = this.route.snapshot.queryParamMap.get(
+            'bookId',
+          );
 
-        this.getBookByVolumeId(volumeId);
-      } else {
-        this.navController.navigateRoot(['login']);
-      }
-    });
+          this.getBookByVolumeId(volumeId);
+        } else {
+          this.navController.navigateRoot(['login']);
+        }
+      });
   }
 
   ionViewDidLeave(): void {
@@ -60,7 +63,7 @@ export class BookPreviewPage {
   public addBook(): void {
     delete this.book.description;
 
-    const bookToAdd: IBookPost = {
+    const bookToAdd: IBook = {
       ...this.book,
       authors: this.book.authors.join(', '),
       uid: this.uid,

@@ -22,6 +22,7 @@ export class AddRecommendationPage {
 
   @Input() book: IBook;
   @Input() recommendation: IRecommendation;
+  @Input() uid: string;
 
   public form: FormGroup;
 
@@ -34,6 +35,8 @@ export class AddRecommendationPage {
         Validators.required,
       ],
       url: [this.recommendation ? this.recommendation.url : ''],
+      reason: [this.recommendation ? this.recommendation.reason : ''],
+      uid: [this.uid],
     });
   }
 

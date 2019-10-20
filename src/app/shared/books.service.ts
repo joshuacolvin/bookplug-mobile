@@ -1,11 +1,10 @@
-import { IBook, IRecommendation, IBookPost } from './book.types';
+import { IBook, IRecommendation } from './book.types';
 import { Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Observable } from 'rxjs';
 import {
   AngularFirestore,
   AngularFirestoreCollection,
   AngularFirestoreDocument,
-  QueryDocumentSnapshot,
 } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase';
@@ -21,37 +20,50 @@ export class BooksService {
   }
 
   // Book Actions
-  public addBook(book: IBookPost): Observable<IBook> {
+  public addBook(book: IBook): Observable<IBook> {
     const booksCollection = this.db.collection<IBook>('books');
 
     book.created = firebase.database.ServerValue.TIMESTAMP;
+    book.recommendationCount = firebase.firestore.FieldValue.increment(0);
 
     booksCollection.doc(book.id).set(book);
 
     return this.db.doc<IBook>(`books/${book.id}`).valueChanges();
   }
 
-  public deleteBook(bookId: string): Observable<void> {
+  public async deleteBook(bookId: string): Promise<void> {
     const bookRef: AngularFirestoreDocument<IBook> = this.db.doc<IBook>(
       `books/${bookId}`,
     );
     const path = `books/${bookId}/recommendations`;
 
-    const deleteFn = firebase
-      .functions()
-      .httpsCallable('removeRecommendations');
+    const recommendations: firebase.firestore.QuerySnapshot = await this.db
+      .collection(path)
+      .ref.get();
 
-    deleteFn({ path })
-      .then(result => console.log('Delete success: ' + JSON.stringify(result)))
-      .catch(err => console.error('Delete failed, see console', err));
+    recommendations.forEach(
+      (recommendation: firebase.firestore.QueryDocumentSnapshot) => {
+        recommendation.ref.delete();
+      },
+    );
 
-    return from(this.db.doc<IBook>(`books/${bookId}`).delete());
+    return bookRef.delete();
   }
 
   public getAllBooks(userId: string): Observable<IBook[]> {
-    const bookRef: any = this.db.collection<IBook>('books', ref =>
-      ref.where('uid', '==', `${userId}`),
+    const bookRef: AngularFirestoreCollection<IBook> = this.db.collection<
+      IBook
+    >('books', ref =>
+      ref.where('uid', '==', userId).orderBy('recommendationCount', 'desc'),
     );
+
+    return bookRef.valueChanges();
+  }
+
+  public getAllBooksByDate(userId: string): Observable<IBook[]> {
+    const bookRef: AngularFirestoreCollection<IBook> = this.db.collection<
+      IBook
+    >('books', ref => ref.where('uid', '==', userId).orderBy('created', 'asc'));
 
     return bookRef.valueChanges();
   }
@@ -66,9 +78,11 @@ export class BooksService {
     recommendation: IRecommendation,
   ): Observable<IBook> {
     const recommendationId: string = this.db.createId();
-    const bookRef: AngularFirestoreDocument<IBookPost> = this.db
+    const bookRef: AngularFirestoreDocument<IBook> = this.db
       .collection('books')
-      .doc<IBookPost>(bookId);
+      .doc<IBook>(bookId);
+
+    recommendation.created = firebase.database.ServerValue.TIMESTAMP;
 
     bookRef
       .collection('recommendations')
@@ -77,10 +91,12 @@ export class BooksService {
         id: recommendationId,
         source: recommendation.source,
         url: recommendation.url,
+        uid: recommendation.uid,
+        created: recommendation.created,
       });
 
     bookRef.update({
-      recommendations: firebase.firestore.FieldValue.increment(1),
+      recommendationCount: firebase.firestore.FieldValue.increment(1),
     });
 
     return this.db
@@ -103,7 +119,7 @@ export class BooksService {
     bookId: string,
     recommendationId: string,
   ): Observable<IRecommendation[]> {
-    const bookRef: AngularFirestoreDocument<IBookPost> = this.db
+    const bookRef: AngularFirestoreDocument<IBook> = this.db
       .collection('books')
       .doc(bookId);
     const recommendationsRef: AngularFirestoreCollection<
@@ -113,7 +129,7 @@ export class BooksService {
     recommendationsRef.doc(recommendationId).delete();
 
     bookRef.update({
-      recommendations: firebase.firestore.FieldValue.increment(-1),
+      recommendationCount: firebase.firestore.FieldValue.increment(-1),
     });
 
     return recommendationsRef.valueChanges();

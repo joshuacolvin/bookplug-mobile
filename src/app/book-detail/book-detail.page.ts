@@ -15,6 +15,7 @@ import { takeUntil } from 'rxjs/operators';
 import { AddRecommendationPage } from './../add-recommendation/add-recommendation.page';
 import { BooksService } from './../shared/books.service';
 import { IBook, IRecommendation } from './../shared/book.types';
+import { AuthService } from './../shared/auth.service';
 
 @Component({
   selector: 'app-book-detail',
@@ -31,19 +32,31 @@ export class BookDetailPage {
     private modalController: ModalController,
     private actionSheetController: ActionSheetController,
     private toastController: ToastController,
+    private authService: AuthService,
   ) {}
 
   @ViewChild(IonItemSliding, { static: true }) slidingItem: IonItemSliding;
 
   public book: IBook;
   public recommendations: IRecommendation[];
+  public uid: string;
 
   private ngUnsubscribe: Subject<any> = new Subject();
 
   ionViewDidEnter(): void {
     const bookId: string = this.route.snapshot.paramMap.get('id');
 
-    this.getBook(bookId);
+    this.authService
+      .getAuthState()
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((user: firebase.User) => {
+        if (user) {
+          this.uid = user.uid;
+          this.getBook(bookId);
+        } else {
+          this.navController.navigateRoot(['login']);
+        }
+      });
   }
 
   ionViewDidLeave(): void {
@@ -117,6 +130,7 @@ export class BookDetailPage {
       componentProps: {
         book: this.book,
         recommendation,
+        uid: this.uid,
       },
     });
 
@@ -142,14 +156,11 @@ export class BookDetailPage {
   public deleteBook(): void {
     this.booksService
       .deleteBook(this.book.id)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(
-        () => {
-          this.presentToast('Book deleted');
-          this.navController.navigateBack(['books']);
-        },
-        error => console.error,
-      );
+      .then(() => {
+        this.presentToast('Book deleted');
+        this.navController.navigateRoot(['books']);
+      })
+      .catch(error => console.error);
   }
 
   public getBook(bookId: string): void {
@@ -160,7 +171,9 @@ export class BookDetailPage {
         (book: IBook) => {
           this.book = book;
 
-          this.getRecommendations(this.book.id);
+          if (this.book) {
+            this.getRecommendations(this.book.id);
+          }
         },
         error => console.error,
       );
