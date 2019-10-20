@@ -1,17 +1,20 @@
+import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { ToastController, NavController } from '@ionic/angular';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { AuthService } from './../shared/auth.service';
 import { BooksService } from './../shared/books.service';
 import { IBook, IBookPreview, IBookPost } from './../shared/book.types';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { ToastController, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-book-preview',
   templateUrl: './book-preview.page.html',
   styleUrls: ['./book-preview.page.scss'],
 })
-export class BookPreviewPage implements OnInit {
+export class BookPreviewPage {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -24,7 +27,9 @@ export class BookPreviewPage implements OnInit {
   public book: IBookPreview;
   public uid: string;
 
-  ngOnInit() {
+  private ngUnsubscribe: Subject<any> = new Subject();
+
+  ionViewDidEnter(): void {
     this.authService.getAuthState().subscribe((user: firebase.User) => {
       if (user) {
         this.uid = user.uid;
@@ -37,6 +42,11 @@ export class BookPreviewPage implements OnInit {
         this.navController.navigateRoot(['login']);
       }
     });
+  }
+
+  ionViewDidLeave(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   async presentToast(): Promise<any> {
@@ -56,18 +66,22 @@ export class BookPreviewPage implements OnInit {
       uid: this.uid,
     };
 
-    this.bookService.addBook(bookToAdd).subscribe(
-      (book: IBook) => {
-        this.presentToast();
-        this.navController.navigateForward([`books/${book.id}`]);
-      },
-      error => console.error,
-    );
+    this.bookService
+      .addBook(bookToAdd)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(
+        (book: IBook) => {
+          this.presentToast();
+          this.navController.navigateForward([`books/${book.id}`]);
+        },
+        error => console.error,
+      );
   }
 
   public getBookByVolumeId(volumeId: string): void {
     this.http
       .get(`https://www.googleapis.com/books/v1/volumes/${volumeId}`)
+      .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((book: any) => {
         const { authors, title, imageLinks, description } = book.volumeInfo;
 
