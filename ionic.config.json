@@ -1,5 +1,7 @@
 {
   "name": "recomndr-mobile",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }

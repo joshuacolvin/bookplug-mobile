@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref></ion-back-button>
+    </ion-buttons>
+    <ion-title>Book preview</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="book" class="book-card">
+    <img [src]="book?.thumbnailUrl" slot="start" />
+    <ion-card-header>
+      <ion-card-title class="book-title">{{ book.title }}</ion-card-title>
+      <ion-card-subtitle
+        class="book-author"
+        *ngFor="let author of book.authors"
+        >{{ author }}</ion-card-subtitle
+      >
+      <ion-button
+        class="add-btn"
+        mode="md"
+        style="text-transform: none;"
+        expand="block"
+        fill="outline"
+        (click)="addBook()"
+      >
+        <ion-icon name="add" slot="start"></ion-icon>
+        Add book</ion-button
+      >
+    </ion-card-header>
+
+    <ion-card-content [innerHTML]="book.description"></ion-card-content>
+  </div>
+</ion-content>

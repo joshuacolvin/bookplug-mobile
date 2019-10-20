@@ -1,0 +1,76 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button (click)="navigateToBooks()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Book Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-icon name="settings" (click)="navigateToSettings()"></ion-icon>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="book">
+  <div class="book-detail-wrapper">
+    <ion-toolbar>
+      <ion-buttons slot="end"
+        ><ion-icon name="more" (click)="presentActionSheet()"></ion-icon
+      ></ion-buttons>
+    </ion-toolbar>
+    <ion-img [src]="book.thumbnailUrl" alt=""></ion-img>
+    <ion-card-header>
+      <ion-card-title>{{ book.title }}</ion-card-title>
+      <ion-card-subtitle>{{ book.authors }}</ion-card-subtitle>
+      <ion-button
+        mode="md"
+        style="text-transform: none;"
+        fill="outline"
+        (click)="presentAddEditModal()"
+      >
+        <ion-icon name="add" slot="start"></ion-icon>
+        Add Recommmendation</ion-button
+      >
+    </ion-card-header>
+    <ion-list-header>
+      <div *ngIf="recommendations?.length; else noRecommendations">
+        Recommendations
+      </div>
+      <ng-template #noRecommendations>No Recommendations</ng-template>
+    </ion-list-header>
+    <ion-list>
+      <ion-item-sliding
+        #slidingItem
+        *ngFor="let recommendation of recommendations"
+      >
+        <ion-item-options side="start">
+          <ion-item-option
+            color="primary"
+            (click)="presentAddEditModal(slidingItem, recommendation)"
+          >
+            Edit
+          </ion-item-option>
+        </ion-item-options>
+        <ion-item>
+          <ion-label class="ion-text-wrap">
+            <h2 *ngIf="!recommendation?.url">{{ recommendation.source }}</h2>
+            <a
+              *ngIf="recommendation?.url"
+              (click)="openSourceUrl(recommendation.url)"
+              target="_system"
+              >{{ recommendation.source }}</a
+            >
+          </ion-label>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option
+            color="danger"
+            (click)="
+              presentDeleteRecommendationConfirm(slidingItem, recommendation.id)
+            "
+            >Remove</ion-item-option
+          >
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+</ion-content>

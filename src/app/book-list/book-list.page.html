@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Books
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-icon name="settings" (click)="navigateToSettings()"></ion-icon>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-searchbar
+    color="light"
+    (ionFocus)="navigateToSearch()"
+    placeholder="Search for a book"
+  ></ion-searchbar>
+
+  <ion-list>
+    <ion-item
+      *ngFor="let book of books"
+      [routerLink]="['/books/', book.id]"
+      routerDirection="forward"
+      detail="true"
+    >
+      <ion-img [src]="book?.thumbnailUrl" slot="start"></ion-img>
+
+      <ion-label>
+        <ion-label>
+          <h3>{{ book.title }}</h3>
+          <p>{{ book.authors }}</p>
+        </ion-label>
+        <p *ngIf="book?.recommendations; else noRecommendations">
+          Recommended {{ book.recommendations }} time(s)
+        </p>
+        <ng-template #noRecommendations><p>No recommendations</p></ng-template>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

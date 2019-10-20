@@ -1,0 +1,55 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-title *ngIf="!recommendation">Add Recommendation</ion-title>
+    <ion-title *ngIf="recommendation">Edit Recommendation</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismissModal()">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form *ngIf="form" [formGroup]="form">
+    <ion-item>
+      <ion-label position="floating"
+        >Source <ion-text color="danger">*</ion-text></ion-label
+      >
+      <ion-input formControlName="source" required="true"></ion-input>
+    </ion-item>
+    <ion-item *ngIf="form.get('source').invalid && form.get('source').dirty">
+      <p>Source is required.</p>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">URL</ion-label>
+      <ion-input
+        formControlName="url"
+        inputmode="url"
+        type="url"
+        title="Enter url"
+      ></ion-input>
+    </ion-item>
+    <ion-button
+      *ngIf="!recommendation"
+      class="action-btn"
+      mode="md"
+      style="text-transform: none;"
+      expand="block"
+      fill="outline"
+      (click)="addRecommendation()"
+    >
+      <ion-icon name="add" slot="start"></ion-icon>
+      Add Recommendation</ion-button
+    >
+    <ion-button
+      *ngIf="recommendation"
+      mode="md"
+      class="action-btn"
+      expand="block"
+      style="text-transform: none;"
+      fill="outline"
+      (click)="editRecommendation()"
+      >Edit Recommendation</ion-button
+    >
+  </form>
+</ion-content>
