@@ -23,7 +23,7 @@ export class BooksService {
   public addBook(book: IBook): Observable<IBook> {
     const booksCollection = this.db.collection<IBook>('books');
 
-    book.created = firebase.database.ServerValue.TIMESTAMP;
+    book.created = firebase.firestore.FieldValue.serverTimestamp();
     book.recommendationCount = firebase.firestore.FieldValue.increment(0);
 
     booksCollection.doc(book.id).set(book);
@@ -54,7 +54,10 @@ export class BooksService {
     const bookRef: AngularFirestoreCollection<IBook> = this.db.collection<
       IBook
     >('books', ref =>
-      ref.where('uid', '==', userId).orderBy('recommendationCount', 'desc'),
+      ref
+        .where('uid', '==', userId)
+        .orderBy('recommendationCount', 'desc')
+        .orderBy('created', 'desc'),
     );
 
     return bookRef.valueChanges();
@@ -63,7 +66,9 @@ export class BooksService {
   public getAllBooksByDate(userId: string): Observable<IBook[]> {
     const bookRef: AngularFirestoreCollection<IBook> = this.db.collection<
       IBook
-    >('books', ref => ref.where('uid', '==', userId).orderBy('created', 'asc'));
+    >('books', ref =>
+      ref.where('uid', '==', userId).orderBy('created', 'desc'),
+    );
 
     return bookRef.valueChanges();
   }
