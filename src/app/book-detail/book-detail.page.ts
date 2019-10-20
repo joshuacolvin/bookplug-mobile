@@ -10,11 +10,11 @@ import {
 } from '@ionic/angular';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { AddRecommendationPage } from './../add-recommendation/add-recommendation.page';
 import { BooksService } from './../shared/books.service';
 import { IBook, IRecommendation } from './../shared/book.types';
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-book-detail',
@@ -51,7 +51,7 @@ export class BookDetailPage {
     this.ngUnsubscribe.complete();
   }
 
-  async presentActionSheet() {
+  async presentActionSheet(): Promise<any> {
     const actionSheet = await this.actionSheetController.create({
       header: 'Book',
       buttons: [
@@ -77,7 +77,7 @@ export class BookDetailPage {
   async presentDeleteRecommendationConfirm(
     slidingItem: IonItemSliding,
     recommendationId: string,
-  ) {
+  ): Promise<any> {
     const alert = await this.alertController.create({
       header: 'Delete recommendation?',
       message: `Are you sure you want to delete this recommendation?`,
@@ -108,7 +108,10 @@ export class BookDetailPage {
     await alert.present();
   }
 
-  async presentAddEditModal(slidingItem: IonItemSliding, recommendation?: any) {
+  async presentAddEditModal(
+    slidingItem: IonItemSliding,
+    recommendation?: IRecommendation,
+  ): Promise<any> {
     const modal = await this.modalController.create({
       component: AddRecommendationPage,
       componentProps: {
@@ -128,16 +131,12 @@ export class BookDetailPage {
     return await modal.present();
   }
 
-  async presentToast(message: string) {
+  async presentToast(message: string): Promise<any> {
     const toast = await this.toastController.create({
       message,
       duration: 2000,
     });
     toast.present();
-  }
-
-  public backButtonClick(event: any): void {
-    this.navController.navigateBack(['books']);
   }
 
   public deleteBook(): void {
