@@ -49,6 +49,7 @@ export class AddRecommendationPage {
     const toast = await this.toastController.create({
       message: 'Recommendation added',
       duration: 2000,
+      color: 'dark',
     });
     toast.present();
   }

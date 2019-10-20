@@ -56,6 +56,7 @@ export class BookPreviewPage {
     const toast = await this.toastController.create({
       message: 'Book added',
       duration: 2000,
+      color: 'dark',
     });
     toast.present();
   }

@@ -33,6 +33,7 @@ export class LoginPage {
     const toast = await this.toastController.create({
       message: `A password reset email has been sent to ${this.user.email}`,
       duration: 2000,
+      color: 'dark',
     });
     toast.present();
   }

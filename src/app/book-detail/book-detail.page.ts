@@ -149,6 +149,7 @@ export class BookDetailPage {
     const toast = await this.toastController.create({
       message,
       duration: 2000,
+      color: 'dark',
     });
     toast.present();
   }
