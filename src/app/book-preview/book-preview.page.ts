@@ -4,7 +4,7 @@ import { IBook, IBookPreview, IBookPost } from './../shared/book.types';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ToastController } from '@ionic/angular';
+import { ToastController, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-book-preview',
@@ -15,7 +15,7 @@ export class BookPreviewPage implements OnInit {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router,
+    private navController: NavController,
     private bookService: BooksService,
     private authService: AuthService,
     private toastController: ToastController,
@@ -34,12 +34,12 @@ export class BookPreviewPage implements OnInit {
 
         this.getBookByVolumeId(volumeId);
       } else {
-        this.router.navigate(['login']);
+        this.navController.navigateRoot(['login']);
       }
     });
   }
 
-  async presentToast() {
+  async presentToast(): Promise<any> {
     const toast = await this.toastController.create({
       message: 'Book added',
       duration: 2000,
@@ -59,7 +59,7 @@ export class BookPreviewPage implements OnInit {
     this.bookService.addBook(bookToAdd).subscribe(
       (book: IBook) => {
         this.presentToast();
-        this.router.navigate([`books/${book.id}`]);
+        this.navController.navigateForward([`books/${book.id}`]);
       },
       error => console.error,
     );
