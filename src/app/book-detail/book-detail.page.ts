@@ -38,7 +38,7 @@ export class BookDetailPage {
   public book: IBook;
   public recommendations: IRecommendation[];
 
-  private ngUnsubscribe = new Subject();
+  private ngUnsubscribe: Subject<any> = new Subject();
 
   ionViewDidEnter(): void {
     const bookId: string = this.route.snapshot.paramMap.get('id');
