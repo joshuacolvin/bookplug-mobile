@@ -1,5 +1,6 @@
 export interface IBook {
   id?: string;
+  googleId?: string;
   title: string;
   authors: string;
   uid: string;
@@ -9,7 +10,7 @@ export interface IBook {
 }
 
 export interface IBookPreview {
-  id: string;
+  googleId: string;
   title: string;
   authors: string[];
   thumbnailUrl: string;

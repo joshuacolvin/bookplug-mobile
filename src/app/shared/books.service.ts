@@ -23,12 +23,15 @@ export class BooksService {
   public addBook(book: IBook): Observable<IBook> {
     const booksCollection = this.db.collection<IBook>('books');
 
+    const id: string = this.db.createId();
+
     book.created = firebase.firestore.FieldValue.serverTimestamp();
     book.recommendationCount = firebase.firestore.FieldValue.increment(0);
+    book.id = id;
 
-    booksCollection.doc(book.id).set(book);
+    booksCollection.doc(id).set(book);
 
-    return this.db.doc<IBook>(`books/${book.id}`).valueChanges();
+    return this.db.doc<IBook>(`books/${id}`).valueChanges();
   }
 
   public async deleteBook(bookId: string): Promise<void> {
@@ -87,7 +90,7 @@ export class BooksService {
       .collection('books')
       .doc<IBook>(bookId);
 
-    recommendation.created = firebase.database.ServerValue.TIMESTAMP;
+    recommendation.created = firebase.firestore.FieldValue.serverTimestamp();
 
     bookRef
       .collection('recommendations')

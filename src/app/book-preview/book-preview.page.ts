@@ -90,7 +90,7 @@ export class BookPreviewPage {
         const { authors, title, imageLinks, description } = book.volumeInfo;
 
         this.book = {
-          id: book.id,
+          googleId: book.id,
           authors,
           title,
           thumbnailUrl: imageLinks.smallThumbnail,
